@@ -1,4 +1,4 @@
-import Logo from "@/src/components/logo";
+import Logo from "@/components/logo";
 import Image from "next/image";
 
 export default function Home() {
