@@ -1,12 +1,14 @@
+"use client";
+
 import { useState, createContext } from "react";
 
 export const PetContext = createContext(null);
 
-export default function PetContextProvider({ children }: React.ReactNode) {
-  const [pets, setPets] = useState([]);
-  const [selectedPet, setSelectedPet] = useState(null);
+export default function PetContextProvider({ data, children }) {
+  const [pets, setPets] = useState(data);
+  const [selectedPetId, setSelectedPetId] = useState(null);
   return (
-    <PetContext.Provider value={{ pets, selectedPet }}>
+    <PetContext.Provider value={{ pets, selectedPetId }}>
       {children}
     </PetContext.Provider>
   );
