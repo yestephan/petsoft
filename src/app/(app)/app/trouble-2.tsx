@@ -1,4 +1,3 @@
-import axios from "axios";
 import AppFooter from "@/components/app-footer";
 import AppHeader from "@/components/app-header";
 import BackgroundPattern from "@/components/background-pattern";
@@ -11,23 +10,37 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   try {
-    const response = await axios.get(
-      "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
+    const response = await fetch(
+      "https://bytegrad.com/course-assets/projects/petsoft/api/pets",
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
     );
 
-    const text = JSON.stringify(response.data);
+    if (!response.ok) {
+      throw new Error("Failed to fetch pets");
+    }
+
+    const contentType = response.headers.get("content-type");
+    const contentLength = response.headers.get("content-length");
+    console.log("Content-Type:", contentType);
+    console.log("Content-Length:", contentLength);
+
+    const text = await response.text();
     console.log("Raw response:", text);
 
-    const jsonStart = text.indexOf("[");
-    const jsonEnd = text.lastIndexOf("]") + 1;
-
-    if (jsonStart === -1 || jsonEnd === -1) {
+    // Use regex to extract the JSON part
+    const match = text.match(/(\[.*\])/);
+    if (!match) {
       throw new Error("Valid JSON not found in the response");
     }
 
-    const validJsonText = text.slice(jsonStart, jsonEnd).trim();
+    const validJsonText = match[1];
     console.log("Extracted JSON:", validJsonText);
 
+    // Try parsing the JSON, catch and log any errors
     let data: Pet[];
     try {
       data = JSON.parse(validJsonText);
