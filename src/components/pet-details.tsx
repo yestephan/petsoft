@@ -9,9 +9,7 @@ export default function PetDetails() {
   return (
     <section className="flex flex-col h-full w-full">
       {!selectedPet ? (
-        <div className="h-full flex justify-center items-center">
-          <EmptyView />
-        </div>
+        <EmptyView />
       ) : (
         <>
           {" "}
@@ -30,7 +28,7 @@ type Props = {
 
 function TopBar({ pet }: Props) {
   return (
-    <div className="flex items-center bg-white px-8 py-5 border-b border-black/[0.08]">
+    <div className="flex items-center bg-white px-8 py-5 border-b border-light">
       <Image
         src={pet?.imageUrl}
         alt="Pet Image"
@@ -62,12 +60,16 @@ function OtherInfo({ pet }: Props) {
 
 function Notes({ pet }: Props) {
   return (
-    <section className="bg-white px-7 py-5 rounded-md mb-9 mx-8 flex-1 border border-black/[0.08]">
+    <section className="bg-white px-7 py-5 rounded-md mb-9 mx-8 flex-1 border border-light">
       {pet?.notes}
     </section>
   );
 }
 
 function EmptyView() {
-  return <p className="text-2xl font-medium">No pet selected</p>;
+  return (
+    <div className="h-full flex justify-center items-center">
+      <p className="text-2xl font-medium">No pet selected</p>
+    </div>
+  );
 }

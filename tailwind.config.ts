@@ -21,20 +21,7 @@ const config = {
       colors: {
         brand: "#5DC9A8",
         defaultgrey: "#E5E8EC",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        light: "rgba(0,0,0,0.08)",
       },
     },
   },

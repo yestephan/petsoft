@@ -16,7 +16,7 @@ export default async function Layout({
     );
 
     const text = JSON.stringify(response.data);
-    console.log("Raw response:", text);
+    // console.log("Raw response:", text);
 
     const jsonStart = text.indexOf("[");
     const jsonEnd = text.lastIndexOf("]") + 1;
@@ -26,17 +26,17 @@ export default async function Layout({
     }
 
     const validJsonText = text.slice(jsonStart, jsonEnd).trim();
-    console.log("Extracted JSON:", validJsonText);
+    // console.log("Extracted JSON:", validJsonText);
 
     let data: Pet[];
     try {
       data = JSON.parse(validJsonText);
     } catch (jsonError) {
-      console.error("JSON parsing error:", jsonError);
-      console.error(
-        "Extracted JSON text that caused the error:",
-        validJsonText
-      );
+      // console.error("JSON parsing error:", jsonError);
+      // console.error(
+      //   "Extracted JSON text that caused the error:",
+      //   validJsonText
+      // );
       throw new Error("Failed to parse JSON");
     }
 
