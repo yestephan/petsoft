@@ -21,27 +21,6 @@ export default function PetButton({
   children,
   onClick,
 }: PetButtonProps) {
-  if (actionType === "add") {
-    return (
-      <Dialog>
-        <DialogTrigger>
-          <Button size="icon">
-            <PlusIcon height={24} width={24} />
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add a new pet</DialogTitle>
-          </DialogHeader>
-          <PetForm></PetForm>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (actionType === "edit") {
-    return <Button variant={"secondary"}>{children}</Button>;
-  }
   if (actionType === "checkout") {
     return (
       <Button variant={"secondary"} onClick={onClick}>
@@ -49,5 +28,29 @@ export default function PetButton({
       </Button>
     );
   }
+  if (actionType === "add" || actionType === "edit") {
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          {actionType === "add" ? (
+            <Button size="icon">
+              <PlusIcon height={24} width={24} />
+            </Button>
+          ) : (
+            <Button variant={"secondary"}>{children}</Button>
+          )}
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {actionType === "edit" ? "Edit pet" : "Add a new pet"}
+            </DialogTitle>
+          </DialogHeader>
+          <PetForm></PetForm>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return <Button>Edit</Button>;
 }
