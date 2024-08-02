@@ -24,14 +24,16 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@types/node": "20.14.10",
+    "@types/node": "^20.14.13",
     "@types/react": "18.3.3",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "postcss": "^8",
+    "prisma": "^5.8.1",
     "tailwindcss": "^3.3.0",
-    "typescript": "5.5.3"
+    "ts-node": "^10.9.1",
+    "typescript": "^5.5.4"
   }
 }
