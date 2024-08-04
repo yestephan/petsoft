@@ -55,7 +55,7 @@ export default function PetForm({
           <Label htmlFor="ownerName">Owner Name</Label>
           <Input
             id="ownerName"
-            name="ownderName"
+            name="ownerName"
             type="text"
             required
             defaultValue={actionType === "edit" ? selectedPet?.ownerName : ""}
@@ -84,7 +84,7 @@ export default function PetForm({
           <Label htmlFor="notes">Notes</Label>
           <Textarea
             id="notes"
-            name="name"
+            name="notes"
             required
             defaultValue={actionType === "edit" ? selectedPet?.notes : ""}
           ></Textarea>
