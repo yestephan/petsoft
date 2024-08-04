@@ -1,9 +1,16 @@
+// prisma/deleteid.ts
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-let deleteId = "clzfoyxqa0009k154lkwu2z7o";
 
-async function deleteById(id: string) {
+// DELETE_ID="your_id_here" npm run prisma:deleteid
+const deleteId = process.env.DELETE_ID;
+
+if (!deleteId) {
+  throw new Error("Please provide a DELETE_ID environment variable");
+}
+
+async function main(id: string) {
   try {
     const deletedRecord = await prisma.pet.delete({
       where: {
@@ -18,12 +25,4 @@ async function deleteById(id: string) {
   }
 }
 
-deleteById(deleteId)
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+main(deleteId);

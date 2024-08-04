@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:deleteid": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/deleteid.ts",
+    "prisma:deleteall": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/deleteall.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
