@@ -7,6 +7,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { on } from "events";
 import { addPet } from "@/actions/actions";
+import PetFormBtn from "./pet-form-btn";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -19,7 +20,13 @@ export default function PetForm({
   const { selectedPet } = usePetContext();
 
   return (
-    <form action={addPet} className="flex flex-col">
+    <form
+      action={async (formData) => {
+        await addPet(formData);
+        onFormSubmission();
+      }}
+      className="flex flex-col"
+    >
       <div className="flex flex-col gap-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
@@ -70,9 +77,7 @@ export default function PetForm({
           ></Textarea>
         </div>
       </div>
-      <Button className="mt-5 self-end" type="submit">
-        {actionType === "edit" ? "Edit pet" : "Add new pet"}
-      </Button>
+      <PetFormBtn actionType={actionType}></PetFormBtn>
     </form>
   );
 }
