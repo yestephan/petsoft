@@ -1,9 +1,9 @@
 "use client";
 
 import { usePetContext, useSearchContext } from "@/lib/hooks";
+import Image from "next/image";
 import { Pet } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 type PetListProps = {
   pets: Pet[];

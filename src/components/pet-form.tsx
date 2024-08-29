@@ -1,12 +1,13 @@
 "use client";
 
-import { usePetContext } from "@/lib/hooks";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import PetFormBtn from "./pet-form-btn";
 import { Textarea } from "./ui/textarea";
-import { on } from "events";
 import { addPet } from "@/actions/actions";
+import { toast } from "sonner";
+import { usePetContext } from "@/lib/hooks";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -19,7 +20,17 @@ export default function PetForm({
   const { selectedPet } = usePetContext();
 
   return (
-    <form action={addPet} className="flex flex-col">
+    <form
+      action={async (formData) => {
+        const error = await addPet(formData);
+        if (error) {
+          toast.warning(error.message);
+          return;
+        }
+        onFormSubmission();
+      }}
+      className="flex flex-col"
+    >
       <div className="flex flex-col gap-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
@@ -70,9 +81,7 @@ export default function PetForm({
           ></Textarea>
         </div>
       </div>
-      <Button className="mt-5 self-end" type="submit">
-        {actionType === "edit" ? "Edit pet" : "Add new pet"}
-      </Button>
+      <PetFormBtn actionType={actionType}></PetFormBtn>
     </form>
   );
 }

@@ -1,8 +1,5 @@
 "use client";
 
-import { PlusIcon } from "@radix-ui/react-icons";
-import { Button } from "./ui/button";
-import { act, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +7,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { act, useState } from "react";
+import { Button } from "./ui/button";
 import PetForm from "./pet-form";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 type PetButtonProps = {
   actionType: "add" | "edit" | "checkout";

@@ -1,9 +1,10 @@
-import axios from "axios";
 import AppFooter from "@/components/app-footer";
 import AppHeader from "@/components/app-header";
 import BackgroundPattern from "@/components/background-pattern";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
+import { Toaster } from "@/components/ui/sonner";
+import axios from "axios";
 import prisma from "@/lib/db";
 
 export default async function Layout({
@@ -22,6 +23,7 @@ export default async function Layout({
         </SearchContextProvider>
         <AppFooter />
       </div>
+      <Toaster position="bottom-right" />
     </>
   );
 }
