@@ -15,19 +15,21 @@ import { PlusIcon } from "@radix-ui/react-icons";
 type PetButtonProps = {
   actionType: "add" | "edit" | "checkout";
   children?: React.ReactNode;
+  disabled?: boolean;
   onClick?: () => void;
 };
 
 export default function PetButton({
   actionType,
   children,
+  disabled,
   onClick,
 }: PetButtonProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   if (actionType === "checkout") {
     return (
-      <Button variant={"secondary"} onClick={onClick}>
+      <Button variant={"secondary"} disabled={disabled} onClick={onClick}>
         {children}
       </Button>
     );
