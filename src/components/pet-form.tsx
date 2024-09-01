@@ -1,11 +1,12 @@
 "use client";
 
+import { addPet, deletePet, editPet } from "@/actions/actions";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import PetFormBtn from "./pet-form-btn";
 import { Textarea } from "./ui/textarea";
-import { addPet } from "@/actions/actions";
+import { act } from "react";
 import { toast } from "sonner";
 import { usePetContext } from "@/lib/hooks";
 
@@ -22,10 +23,19 @@ export default function PetForm({
   return (
     <form
       action={async (formData) => {
-        const error = await addPet(formData);
-        if (error) {
-          toast.warning(error.message);
-          return;
+        if (actionType === "add") {
+          const error = await addPet(formData);
+          if (error) {
+            toast.warning(error.message);
+            return;
+          }
+        } else if (actionType === "edit") {
+          const error =
+            selectedPet && (await editPet(formData, selectedPet?.id));
+          if (error) {
+            toast.warning(error.message);
+            return;
+          }
         }
         onFormSubmission();
       }}
