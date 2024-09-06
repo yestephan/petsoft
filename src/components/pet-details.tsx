@@ -1,11 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
 import Image from "next/image";
-import { Pet } from "@/lib/types";
-import PetButton from "./pet-button";
+import { useTransition } from "react";
+
 import { deletePet } from "@/actions/actions";
 import { usePetContext } from "@/lib/hooks";
+import { Pet } from "@/lib/types";
+
+import PetButton from "./pet-button";
 
 export default function PetDetails() {
   const { selectedPet } = usePetContext();
