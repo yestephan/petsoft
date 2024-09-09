@@ -20,26 +20,26 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
-  const { selectedPet } = usePetContext();
+  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
 
   return (
     <form
       action={async (formData) => {
-        if (actionType === "add") {
-          const error = await addPet(formData);
-          if (error) {
-            toast.warning(error.message);
-            return;
-          }
-        } else if (actionType === "edit") {
-          const error =
-            selectedPet && (await editPet(formData, selectedPet?.id));
-          if (error) {
-            toast.warning(error.message);
-            return;
-          }
-        }
         onFormSubmission();
+        const petData = {
+          name: formData.get("name") as string,
+          ownerName: formData.get("ownerName") as string,
+          imageUrl:
+            (formData.get("imageUrl") as string) ||
+            "https://plus.unsplash.com/premium_photo-1676390051589-bead49b416a6?q=80&w=3086&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          age: Number(formData.get("age")),
+          notes: formData.get("notes") as string,
+        };
+        if (actionType === "add") {
+          await handleAddPet(petData);
+        } else if (actionType === "edit") {
+          await (selectedPet && handleEditPet(petData, selectedPet?.id));
+        }
       }}
       className="flex flex-col"
     >

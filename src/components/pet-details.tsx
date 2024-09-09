@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useTransition } from "react";
 
-import { deletePet } from "@/actions/actions";
 import { usePetContext } from "@/lib/hooks";
 import { Pet } from "@/lib/types";
 
@@ -52,9 +51,7 @@ function TopBar({ pet }: Props) {
           actionType="checkout"
           disabled={isPending}
           onClick={async () => {
-            startTransition(async () => {
-              await deletePet(pet.id);
-            });
+            await handleCheckoutPet(pet.id);
           }}
         >
           Checkout
