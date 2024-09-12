@@ -32,8 +32,7 @@ type Props = {
 
 function TopBar({ pet }: Props) {
   const { handleCheckoutPet } = usePetContext();
-  const [isPending, startTransition] = useTransition();
-  console.log(isPending);
+  const [isPending] = useTransition();
 
   return (
     <div className="flex items-center bg-white px-8 py-5 border-b border-light">
