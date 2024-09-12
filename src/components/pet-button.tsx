@@ -2,6 +2,7 @@
 
 import { PlusIcon } from "@radix-ui/react-icons";
 import { act, useState } from "react";
+import { flushSync } from "react-dom";
 
 import PetForm from "./pet-form";
 import { Button } from "./ui/button";
@@ -56,7 +57,9 @@ export default function PetButton({
           <PetForm
             actionType={actionType}
             onFormSubmission={() => {
-              setIsFormOpen(false);
+              flushSync(() => {
+                setIsFormOpen(false);
+              });
             }}
           ></PetForm>
         </DialogContent>

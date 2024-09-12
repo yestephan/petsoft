@@ -15,7 +15,7 @@ export default function PetList() {
   const { searchQuery } = useSearchContext();
 
   const filteredPets = pets.filter((pet) =>
-    pet.name.toLocaleLowerCase().includes(searchQuery)
+    pet.name?.toLocaleLowerCase().includes(searchQuery)
   );
 
   return (
