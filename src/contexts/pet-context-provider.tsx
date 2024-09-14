@@ -1,10 +1,11 @@
 "use client";
 
+import { Pet } from "@prisma/client";
 import { createContext, startTransition, useOptimistic, useState } from "react";
 import { toast } from "sonner";
 
 import { addPet, deletePet, editPet } from "@/actions/actions";
-import { Pet } from "@/lib/types";
+import { PetEssentials } from "@/lib/types";
 
 type PetContextProviderProps = {
   data: Pet[];
@@ -13,13 +14,13 @@ type PetContextProviderProps = {
 
 type TPetContext = {
   pets: Pet[];
-  selectedPetId: string | null;
+  selectedPetId: Pet["id"] | null;
   selectedPet: Pet | undefined;
   numberOfPets: number;
-  handleAddPet: (pet: Omit<Pet, "id">) => void;
-  handleEditPet: (newPetData: Omit<Pet, "id">, petId: string) => void;
-  handleCheckoutPet: (id: string) => void;
-  handleChangeSelectedPetId: (id: string) => void;
+  handleAddPet: (newPetData: PetEssentials) => void;
+  handleEditPet: (updatedPetData: PetEssentials, petId: Pet["id"]) => void;
+  handleCheckoutPet: (id: Pet["id"]) => void;
+  handleChangeSelectedPetId: (id: Pet["id"]) => void;
 };
 
 export const PetContext = createContext<TPetContext | null>(null);
@@ -57,26 +58,32 @@ export default function PetContextProvider({
   const numberOfPets = optimisticPets.length;
 
   // event handlers / actions
-  const handleAddPet = async (newPet: Omit<Pet, "id">) => {
-    setOptimisticPets({ action: "add", payload: newPet });
-    const error = await addPet(newPet);
+  const handleAddPet = async (newPetData: PetEssentials) => {
+    setOptimisticPets({ action: "add", payload: newPetData });
+    const error = await addPet(newPetData);
     if (error) {
       toast.warning(error.message);
       return;
     }
   };
 
-  const handleEditPet = async (newPetData: Omit<Pet, "id">, petId: string) => {
-    setOptimisticPets({ action: "edit", payload: { id: petId, newPetData } });
+  const handleEditPet = async (
+    updatedPetData: PetEssentials,
+    petId: Pet["id"]
+  ) => {
+    setOptimisticPets({
+      action: "edit",
+      payload: { id: petId, updatedPetData },
+    });
 
-    const error = selectedPet && (await editPet(petId, newPetData));
+    const error = selectedPet && (await editPet(petId, updatedPetData));
     if (error) {
       toast.warning(error.message);
       return;
     }
   };
 
-  const handleCheckoutPet = async (petId: string) => {
+  const handleCheckoutPet = async (petId: Pet["id"]) => {
     setOptimisticPets({ action: "delete", payload: petId });
     const error = await deletePet(petId);
     if (error) {

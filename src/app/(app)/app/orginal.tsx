@@ -1,8 +1,9 @@
+import { Pet } from "@prisma/client";
+
 import AppFooter from "@/components/app-footer";
 import AppHeader from "@/components/app-header";
 import BackgroundPattern from "@/components/background-pattern";
 import PetContextProvider from "@/contexts/pet-context-provider";
-import { Pet } from "@/lib/types";
 
 export default async function Layout({
   children,
