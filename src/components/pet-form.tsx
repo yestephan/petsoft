@@ -1,8 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
+import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 import { usePetContext } from "@/lib/hooks";
+import { petFormSchema, TPetForm } from "@/lib/validations";
 
 import PetFormBtn from "./pet-form-btn";
 import { Input } from "./ui/input";
@@ -14,39 +18,40 @@ type PetFormProps = {
   onFormSubmission: () => void;
 };
 
-type PetForm = {
-  name: string;
-  ownerName: string;
-  imageUrl: string;
-  age: number;
-  notes: string;
-};
 export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
+  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
+
   const {
     register,
     trigger,
+    getValues,
     formState: { errors },
-  } = useForm<PetForm>();
-  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema),
+    defaultValues: {
+      name: selectedPet?.name,
+      ownerName: selectedPet?.ownerName,
+      imageUrl: selectedPet?.imageUrl,
+      age: selectedPet?.age,
+      notes: selectedPet?.notes,
+    },
+  });
 
   return (
     <form
-      action={async (formData) => {
+      action={async () => {
         const result = await trigger();
+
         if (!result) return;
+
         onFormSubmission();
-        const petData = {
-          name: formData.get("name") as string,
-          ownerName: formData.get("ownerName") as string,
-          imageUrl:
-            (formData.get("imageUrl") as string) ||
-            "https://plus.unsplash.com/premium_photo-1676390051589-bead49b416a6?q=80&w=3086&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          age: Number(formData.get("age")),
-          notes: formData.get("notes") as string,
-        };
+
+        const petData = getValues();
+        petData.imageUrl = petData.imageUrl || DEFAULT_PET_IMAGE;
+
         if (actionType === "add") {
           await handleAddPet(petData);
         } else if (actionType === "edit") {
@@ -90,7 +95,7 @@ export default function PetForm({
           <Label htmlFor="imageUrl">Image Url</Label>
           <Input
             id="imageUrl"
-            {...register("imageUrl", { required: "Name is required" })}
+            {...register("imageUrl", { required: "ImageUrl is required" })}
           />
           {errors.imageUrl && (
             <p className="text-red-500">{errors.imageUrl.message}</p>
