@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { DEFAULT_PET_IMAGE } from "./constants";
 
+export const petIdeaSchema = z.string().cuid();
+
 export const petFormSchema = z
   .object({
     name: z

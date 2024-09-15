@@ -22,19 +22,29 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
+  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
+
   const {
     register,
     trigger,
     getValues,
     formState: { errors },
-  } = useForm<TPetForm>({ resolver: zodResolver(petFormSchema) });
-
-  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema),
+    defaultValues: {
+      name: selectedPet?.name,
+      ownerName: selectedPet?.ownerName,
+      imageUrl: selectedPet?.imageUrl,
+      age: selectedPet?.age,
+      notes: selectedPet?.notes,
+    },
+  });
 
   return (
     <form
       action={async () => {
         const result = await trigger();
+
         if (!result) return;
 
         onFormSubmission();
