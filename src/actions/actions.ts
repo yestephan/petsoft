@@ -1,13 +1,24 @@
 "use server";
 
-import { Pet } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+import { signIn } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { PetEssentials } from "@/lib/types";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdeaSchema } from "@/lib/validations";
 
+// --- user actions ---
+export async function logIn(formData: FormData) {
+  const authData = Object.fromEntries(formData.entries());
+  console.log(authData, "authdata");
+
+  await signIn("credentials", authData);
+  // Validate the data
+  // If the data is invalid, return an error message
+  // If the data is valid, log the user in
+}
+
+// --- pet actions ---
 export async function addPet(newPetData: unknown) {
   await sleep(1000);
 

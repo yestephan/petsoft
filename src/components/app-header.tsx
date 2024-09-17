@@ -16,11 +16,10 @@ const routes = [
 
 export default function AppHeader() {
   const activePathname = usePathname();
-  console.log("activePathname", activePathname);
   return (
-    <header className="flex justify-between  border-b border-white/10 py-2">
+    <header className="flex justify-between align-middle border-b border-white/10 py-2">
       <Logo />
-      <nav>
+      <nav className="flex">
         <ul className="flex gap-2 text-xs items-center">
           {routes.map((route) => (
             <li key={route.path}>
