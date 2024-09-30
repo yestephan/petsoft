@@ -10,7 +10,7 @@ import { petFormSchema, petIdeaSchema } from "@/lib/validations";
 // --- user actions ---
 export async function logIn(formData: FormData) {
   const authData = Object.fromEntries(formData.entries());
-  console.log(authData, "authdata");
+  // console.log(authData, "authdata");
 
   await signIn("credentials", authData);
   // Validate the data
