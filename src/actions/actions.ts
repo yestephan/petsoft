@@ -1,11 +1,13 @@
 "use server";
 
+import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
 
-import { signIn } from "@/lib/auth";
+import { auth, signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdeaSchema } from "@/lib/validations";
+import { redirect } from "next/navigation";
 
 // --- user actions ---
 export async function logIn(formData: FormData) {
@@ -18,9 +20,36 @@ export async function logIn(formData: FormData) {
   // If the data is valid, log the user in
 }
 
+export async function logOut() {
+  // Log the user out using the signOut function from the auth library
+  await signOut({ redirectTo: "/" });
+}
+
+export async function signUp(formData: FormData) {
+  const authData = Object.fromEntries(formData.entries());
+  // console.log(authData, "authdata");
+
+  const hashedPassword = await bcrypt.hash(authData.password as string, 10);
+
+  await prisma.user.create({
+    data: {
+      email: authData.email as string,
+      hashedPassword: hashedPassword,
+    },
+  });
+
+  // Log the user using the signIn function from the auth library which is imported from the auth
+  await signIn("credentials", formData);
+}
+
 // --- pet actions ---
 export async function addPet(newPetData: unknown) {
   await sleep(1000);
+
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
 
   const validatedPet = petFormSchema.safeParse(newPetData);
   if (!validatedPet.success) {
@@ -28,12 +57,19 @@ export async function addPet(newPetData: unknown) {
   }
   try {
     await prisma.pet.create({
-      data: validatedPet.data,
+      data: {
+        ...validatedPet.data,
+        user: {
+          connect: {
+            id: session?.user?.id,
+          },
+        },
+      },
     });
   } catch (error) {
     console.log(error);
 
-    return { message: "error" };
+    return { message: "Could not add pet" };
   }
 
   revalidatePath("/app", "layout");

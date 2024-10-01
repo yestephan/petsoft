@@ -34,6 +34,7 @@ const config = {
           console.log("Password does not match");
           return null;
         }
+        // you have to explicitly pass the user id
         return user;
       },
     }),
@@ -52,11 +53,34 @@ const config = {
         return true;
       }
       // If the user is not logged in and is not trying to access the app, allow access
-      if (!isTryingToAccessApp) {
+      if (isLoggedIn && !isTryingToAccessApp) {
+        return Response.redirect(
+          new URL("/app/dashboard", request.nextUrl).href
+        );
+      }
+
+      if (!isLoggedIn && !isTryingToAccessApp) {
         return true;
       }
+      return false;
+    },
+    // jwt is a JSON Web Token coming from the provider by default
+    // the provider is the object returned by the authorize function
+    jwt: ({ token, user }) => {
+      if (user) {
+        // on sign in
+        token.userId = user.id;
+      }
+      return token;
+    },
+    // session is the object that will be returned to the client
+    session: ({ session, token }) => {
+      if (session.user) {
+        session.user.id = token.userId;
+      }
+      return session;
     },
   },
 } satisfies NextAuthConfig;
 
-export const { auth, signIn } = NextAuth(config);
+export const { auth, signIn, signOut } = NextAuth(config);

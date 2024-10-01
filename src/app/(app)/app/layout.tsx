@@ -1,9 +1,12 @@
+import { redirect } from "next/navigation";
+
 import AppFooter from "@/components/app-footer";
 import AppHeader from "@/components/app-header";
 import BackgroundPattern from "@/components/background-pattern";
 import { Toaster } from "@/components/ui/sonner";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 
 export default async function Layout({
@@ -11,7 +14,18 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const pets = await prisma.pet.findMany();
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  const pets = await prisma.pet.findMany({
+    where: {
+      // you have to explicitly pass the user id
+      userId: session?.user?.id,
+    },
+  });
   const user = await prisma.user.findUnique({
     where: {
       id: "1",
