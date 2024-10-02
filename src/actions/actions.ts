@@ -2,12 +2,12 @@
 
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { auth, signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdeaSchema } from "@/lib/validations";
-import { redirect } from "next/navigation";
 
 // --- user actions ---
 export async function logIn(formData: FormData) {
@@ -78,6 +78,13 @@ export async function addPet(newPetData: unknown) {
 export async function editPet(petId: unknown, updatedPetData: unknown) {
   await sleep(1000);
 
+  // authentification check
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  // validation check
   const validatedPet = petFormSchema.safeParse(updatedPetData);
   if (!validatedPet.success) {
     return { message: "Invalid data" };
@@ -86,6 +93,17 @@ export async function editPet(petId: unknown, updatedPetData: unknown) {
   const validatedPetId = petIdeaSchema.safeParse(petId);
   if (!validatedPetId.success) {
     return { message: "Invalid data" };
+  }
+
+  // authorization check
+  const pet = await prisma.pet.findUnique({
+    where: { id: validatedPetId.data },
+  });
+  if (!pet) {
+    return { message: "Pet not found" };
+  }
+  if (pet.userId !== session?.user?.id) {
+    return { message: "Unauthorized" };
   }
 
   try {
@@ -104,11 +122,33 @@ export async function editPet(petId: unknown, updatedPetData: unknown) {
 export async function deletePet(petId: unknown) {
   await sleep(1000);
 
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
+
   const validatedPetId = petIdeaSchema.safeParse(petId);
+
   if (!validatedPetId.success) {
     return { message: "Invalid data" };
   }
 
+  // authorization check
+  const pet = await prisma.pet.findUnique({
+    where: {
+      id: validatedPetId.data,
+    },
+  });
+
+  if (!pet) {
+    return { message: "Pet not found" };
+  }
+
+  if (pet.userId !== session?.user?.id) {
+    return { message: "Unauthorized" };
+  }
+
+  // database mutation
   try {
     await prisma.pet.delete({
       where: {
@@ -118,5 +158,6 @@ export async function deletePet(petId: unknown) {
   } catch (error) {
     return { message: "Could not delete" };
   }
+
   revalidatePath("/app", "layout");
 }
