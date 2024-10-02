@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 import { usePetContext } from "@/lib/hooks";
@@ -47,7 +46,6 @@ export default function PetForm({
     <form
       action={async () => {
         const result = await trigger();
-
         if (!result) return;
 
         onFormSubmission();
