@@ -1,15 +1,10 @@
-import { redirect } from "next/navigation";
-
 import ContentBlock from "@/components/content-block";
 import H1 from "@/components/h1";
 import SignOutButton from "@/components/sign-out-button";
-import { auth } from "@/lib/auth";
+import { checkAuth } from "@/lib/server-utils";
 
 export default async function Page() {
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await checkAuth();
 
   return (
     <main>
