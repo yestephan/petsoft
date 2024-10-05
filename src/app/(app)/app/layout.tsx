@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
 import prisma from "@/lib/db";
-import { checkAuth } from "@/lib/server-utils";
+import { checkAuth, getPetByUserId } from "@/lib/server-utils";
 
 export default async function Layout({
   children,
@@ -14,12 +14,8 @@ export default async function Layout({
 }) {
   const session = await checkAuth();
 
-  const pets = await prisma.pet.findMany({
-    where: {
-      // you have to explicitly pass the user id
-      userId: session?.user?.id,
-    },
-  });
+  const pets = await getPetByUserId(session.user.id);
+
   const user = await prisma.user.findUnique({
     where: {
       id: "1",

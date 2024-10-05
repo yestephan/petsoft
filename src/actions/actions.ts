@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { checkAuth } from "@/lib/server-utils";
+import { checkAuth, getPetByPetId } from "@/lib/server-utils";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdeaSchema } from "@/lib/validations";
 
@@ -58,7 +58,7 @@ export async function addPet(newPetData: unknown) {
         ...validatedPet.data,
         user: {
           connect: {
-            id: session?.user?.id,
+            id: session.user.email,
           },
         },
       },
@@ -90,9 +90,8 @@ export async function editPet(petId: unknown, updatedPetData: unknown) {
   }
 
   // authorization check
-  const pet = await prisma.pet.findUnique({
-    where: { id: validatedPetId.data },
-  });
+  const pet = await getPetByPetId(validatedPetId.data);
+
   if (!pet) {
     return { message: "Pet not found" };
   }
@@ -125,11 +124,7 @@ export async function deletePet(petId: unknown) {
   }
 
   // authorization check
-  const pet = await prisma.pet.findUnique({
-    where: {
-      id: validatedPetId.data,
-    },
-  });
+  const pet = await getPetByPetId(validatedPetId.data);
 
   if (!pet) {
     return { message: "Pet not found" };
