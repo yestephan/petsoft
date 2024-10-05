@@ -2,10 +2,10 @@
 
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
-import { auth, signIn, signOut } from "@/lib/auth";
+import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { checkAuth, getPetByPetId } from "@/lib/server-utils";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdeaSchema } from "@/lib/validations";
 
@@ -46,10 +46,7 @@ export async function signUp(formData: FormData) {
 export async function addPet(newPetData: unknown) {
   await sleep(1000);
 
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await checkAuth();
 
   const validatedPet = petFormSchema.safeParse(newPetData);
   if (!validatedPet.success) {
@@ -61,7 +58,7 @@ export async function addPet(newPetData: unknown) {
         ...validatedPet.data,
         user: {
           connect: {
-            id: session?.user?.id,
+            id: session.user.email,
           },
         },
       },
@@ -79,10 +76,7 @@ export async function editPet(petId: unknown, updatedPetData: unknown) {
   await sleep(1000);
 
   // authentification check
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await checkAuth();
 
   // validation check
   const validatedPet = petFormSchema.safeParse(updatedPetData);
@@ -96,9 +90,8 @@ export async function editPet(petId: unknown, updatedPetData: unknown) {
   }
 
   // authorization check
-  const pet = await prisma.pet.findUnique({
-    where: { id: validatedPetId.data },
-  });
+  const pet = await getPetByPetId(validatedPetId.data);
+
   if (!pet) {
     return { message: "Pet not found" };
   }
@@ -122,10 +115,7 @@ export async function editPet(petId: unknown, updatedPetData: unknown) {
 export async function deletePet(petId: unknown) {
   await sleep(1000);
 
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await checkAuth();
 
   const validatedPetId = petIdeaSchema.safeParse(petId);
 
@@ -134,11 +124,7 @@ export async function deletePet(petId: unknown) {
   }
 
   // authorization check
-  const pet = await prisma.pet.findUnique({
-    where: {
-      id: validatedPetId.data,
-    },
-  });
+  const pet = await getPetByPetId(validatedPetId.data);
 
   if (!pet) {
     return { message: "Pet not found" };

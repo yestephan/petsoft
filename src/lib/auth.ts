@@ -3,6 +3,7 @@ import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import prisma from "./db";
+import { getUserByEmail } from "./server-utils";
 
 const config = {
   // Custom pages such as sign in, sign out, etc.
@@ -16,11 +17,9 @@ const config = {
       async authorize(credentials) {
         // Runs on Log in
         const { email, password } = credentials;
-        const user = await prisma.user.findUnique({
-          where: {
-            email: email,
-          },
-        });
+
+        const user = await getUserByEmail(email);
+
         if (!user) {
           console.log("User not found");
           return null;
