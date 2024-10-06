@@ -32,6 +32,7 @@ const config = {
           console.log("User not found");
           return null;
         }
+
         const passwordMatch = await bcrypt.compare(
           password,
           user.hashedPassword
