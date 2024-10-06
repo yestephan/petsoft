@@ -2,8 +2,8 @@ import bcrypt from "bcryptjs";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import prisma from "./db";
 import { getUserByEmail } from "./server-utils";
+import { authSchema } from "./validations";
 
 const config = {
   // Custom pages such as sign in, sign out, etc.
@@ -15,8 +15,16 @@ const config = {
   providers: [
     Credentials({
       async authorize(credentials) {
+        // This function runs when a user tries to log in
+
+        // Check if the FormDataObject is valid
+        const validatedFormData = authSchema.safeParse(credentials);
+        if (!validatedFormData.success) {
+          return null;
+        }
+
         // Runs on Log in
-        const { email, password } = credentials;
+        const { email, password } = validatedFormData.data;
 
         const user = await getUserByEmail(email);
 
@@ -24,6 +32,7 @@ const config = {
           console.log("User not found");
           return null;
         }
+
         const passwordMatch = await bcrypt.compare(
           password,
           user.hashedPassword
@@ -82,4 +91,9 @@ const config = {
   },
 } satisfies NextAuthConfig;
 
-export const { auth, signIn, signOut } = NextAuth(config);
+export const {
+  auth,
+  signIn,
+  signOut,
+  handlers: { GET, POST },
+} = NextAuth(config);

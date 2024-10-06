@@ -30,3 +30,12 @@ export const petFormSchema = z
   }));
 
 export type TPetForm = z.infer<typeof petFormSchema>;
+
+// This is the type of the data that will be passed to the signUp function
+export const authSchema = z.object({
+  email: z.string().email().max(100),
+  password: z.string().max(100),
+});
+
+// This is the type of the data that will be passed to the signUp function
+export type TAuthSchema = z.infer<typeof authSchema>;

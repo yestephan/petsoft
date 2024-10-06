@@ -1,42 +1,84 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
+import { AuthError } from "next-auth";
 
 import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { checkAuth, getPetByPetId } from "@/lib/server-utils";
 import { sleep } from "@/lib/utils";
-import { petFormSchema, petIdeaSchema } from "@/lib/validations";
+import { authSchema, petFormSchema, petIdeaSchema } from "@/lib/validations";
 
 // --- user actions ---
-export async function logIn(formData: FormData) {
-  const authData = Object.fromEntries(formData.entries());
-  // console.log(authData, "authdata");
+export async function logIn(prevState: unknown, formData: unknown) {
+  await sleep(1000);
 
-  await signIn("credentials", authData);
-  // Validate the data
-  // If the data is invalid, return an error message
-  // If the data is valid, log the user in
+  if (!(formData instanceof FormData)) {
+    return { message: "Invalid data" };
+  }
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin": {
+          return { message: "Invalid credentials" };
+        }
+        default: {
+          return { message: "Error. Could not sign in" };
+        }
+      }
+    }
+    throw error; // nextjs redirects throws error, so we need to rethrow it
+  }
 }
 
 export async function logOut() {
+  await sleep(1000);
+
   // Log the user out using the signOut function from the auth library
   await signOut({ redirectTo: "/" });
 }
 
-export async function signUp(formData: FormData) {
-  const authData = Object.fromEntries(formData.entries());
-  // console.log(authData, "authdata");
+export async function signUp(prevState: unknown, formData: unknown) {
+  await sleep(1000);
 
-  const hashedPassword = await bcrypt.hash(authData.password as string, 10);
+  // Check if the data is a FormData object
+  if (!(formData instanceof FormData)) {
+    return { message: "Invalid data" };
+  }
 
-  await prisma.user.create({
-    data: {
-      email: authData.email as string,
-      hashedPassword: hashedPassword,
-    },
-  });
+  // Convert the FormData object to a JSON object
+  const formDataEntries = Object.fromEntries(formData.entries());
+
+  // Validate the JSON object
+  const validatedFormData = authSchema.safeParse(formDataEntries);
+  if (!validatedFormData.success) {
+    return { message: "Invalid data" };
+  }
+  // Hash the password
+  const { email, password } = validatedFormData.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Create the user in the database
+  try {
+    await prisma.user.create({
+      data: {
+        email: email,
+        hashedPassword: hashedPassword,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        return { message: "Email already exists" };
+      }
+    }
+
+    return { message: "Could not create user" };
+  }
 
   // Log the user using the signIn function from the auth library which is imported from the auth
   await signIn("credentials", formData);
