@@ -4,7 +4,6 @@ import BackgroundPattern from "@/components/background-pattern";
 import { Toaster } from "@/components/ui/sonner";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
-import prisma from "@/lib/db";
 import { checkAuth, getPetByUserId } from "@/lib/server-utils";
 
 export default async function Layout({
@@ -15,12 +14,6 @@ export default async function Layout({
   const session = await checkAuth();
 
   const pets = await getPetByUserId(session.user.id);
-
-  const user = await prisma.user.findUnique({
-    where: {
-      id: "1",
-    },
-  });
 
   return (
     <>

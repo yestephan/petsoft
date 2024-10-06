@@ -2,22 +2,23 @@
 
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { checkAuth, getPetByPetId } from "@/lib/server-utils";
 import { sleep } from "@/lib/utils";
-import { petFormSchema, petIdeaSchema } from "@/lib/validations";
+import { authSchema, petFormSchema, petIdeaSchema } from "@/lib/validations";
 
 // --- user actions ---
-export async function logIn(formData: FormData) {
-  const authData = Object.fromEntries(formData.entries());
-  // console.log(authData, "authdata");
+export async function logIn(formData: unknown) {
+  if (!(formData instanceof FormData)) {
+    return { message: "Invalid data" };
+  }
 
-  await signIn("credentials", authData);
-  // Validate the data
-  // If the data is invalid, return an error message
-  // If the data is valid, log the user in
+  await signIn("credentials", formData);
+
+  redirect("/app/dashboard");
 }
 
 export async function logOut() {
@@ -25,21 +26,41 @@ export async function logOut() {
   await signOut({ redirectTo: "/" });
 }
 
-export async function signUp(formData: FormData) {
-  const authData = Object.fromEntries(formData.entries());
-  // console.log(authData, "authdata");
+export async function signUp(formData: unknown) {
+  // Check if the data is a FormData object
+  if (!(formData instanceof FormData)) {
+    return { message: "Invalid data" };
+  }
 
-  const hashedPassword = await bcrypt.hash(authData.password as string, 10);
+  // Convert the FormData object to a JSON object
+  const formDataEntries = Object.fromEntries(formData.entries());
 
-  await prisma.user.create({
-    data: {
-      email: authData.email as string,
-      hashedPassword: hashedPassword,
-    },
-  });
+  // Validate the JSON object
+  const validatedFormData = authSchema.safeParse(formData);
+  if (!validatedFormData.success) {
+    return { message: "Invalid data" };
+  }
+  console.log("validatedFormData", validatedFormData);
+  // Hash the password
+  const { email, password } = validatedFormData.data;
+  const hashedPassword = await bcrypt.hash(password, 100);
+
+  // Create the user in the database
+  try {
+    const user = await prisma.user.create({
+      data: {
+        email: email,
+        hashedPassword: hashedPassword,
+      },
+    });
+    console.log("User created", user);
+  } catch (error) {
+    return { message: "Could not create user" };
+  }
 
   // Log the user using the signIn function from the auth library which is imported from the auth
   await signIn("credentials", formData);
+  redirect("/app/dashboard");
 }
 
 // --- pet actions ---
