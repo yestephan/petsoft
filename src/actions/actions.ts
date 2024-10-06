@@ -36,31 +36,25 @@ export async function signUp(formData: unknown) {
   const formDataEntries = Object.fromEntries(formData.entries());
 
   // Validate the JSON object
-  const validatedFormData = authSchema.safeParse(formData);
+  const validatedFormData = authSchema.safeParse(formDataEntries);
   if (!validatedFormData.success) {
     return { message: "Invalid data" };
   }
-  console.log("validatedFormData", validatedFormData);
   // Hash the password
   const { email, password } = validatedFormData.data;
-  const hashedPassword = await bcrypt.hash(password, 100);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // Create the user in the database
-  try {
-    const user = await prisma.user.create({
-      data: {
-        email: email,
-        hashedPassword: hashedPassword,
-      },
-    });
-    console.log("User created", user);
-  } catch (error) {
-    return { message: "Could not create user" };
-  }
+
+  const user = await prisma.user.create({
+    data: {
+      email: email,
+      hashedPassword: hashedPassword,
+    },
+  });
 
   // Log the user using the signIn function from the auth library which is imported from the auth
   await signIn("credentials", formData);
-  redirect("/app/dashboard");
 }
 
 // --- pet actions ---
