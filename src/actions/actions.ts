@@ -3,7 +3,6 @@
 import { Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 
 import { signIn, signOut } from "@/lib/auth";
@@ -28,17 +27,17 @@ export async function logIn(prevState: unknown, formData: unknown) {
           return { message: "Invalid credentials" };
         }
         default: {
-          return { message: "Could not sign in" };
+          return { message: "Error. Could not sign in" };
         }
       }
     }
-    return { message: "Could not sign in" };
+    throw error; // nextjs redirects throws error, so we need to rethrow it
   }
-
-  redirect("/app/dashboard");
 }
 
 export async function logOut() {
+  await sleep(1000);
+
   // Log the user out using the signOut function from the auth library
   await signOut({ redirectTo: "/" });
 }
