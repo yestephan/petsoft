@@ -54,8 +54,8 @@ const config = {
       if (!isLoggedIn && isTryingToAccessApp) {
         return false;
       }
-      // If the user is logged in and is trying to access the app, allow access
-      if (isLoggedIn && isTryingToAccessApp) {
+      // If the user is logged in and is trying to access the app, allow access && auth?.user.hasAccess
+      if (isLoggedIn && isTryingToAccessApp && auth?.user.hasAccess) {
         return true;
       }
       // If the user is not logged in and is not trying to access the app, allow access
@@ -80,6 +80,7 @@ const config = {
       if (user) {
         // on sign in
         token.userId = user.id;
+        token.hasAccess = user.hasAccess;
       }
       return token;
     },
@@ -87,6 +88,7 @@ const config = {
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.userId;
+        session.user.hasAccess = token.hasAccess;
       }
       return session;
     },
