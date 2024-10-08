@@ -54,15 +54,21 @@ const config = {
       if (!isLoggedIn && isTryingToAccessApp) {
         return false;
       }
+      // If the user is logged in and is trying to access the app, but not paid, deny access
+      if (isLoggedIn && isTryingToAccessApp && !auth?.user.hasAccess) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
+      }
       // If the user is logged in and is trying to access the app, allow access && auth?.user.hasAccess
       if (isLoggedIn && isTryingToAccessApp && auth?.user.hasAccess) {
         return true;
       }
+
       // If the user is not logged in and is not trying to access the app, allow access
       if (isLoggedIn && !isTryingToAccessApp) {
         if (
-          request.nextUrl.pathname.includes("/login") ||
-          request.nextUrl.pathname.includes("/signup")
+          (request.nextUrl.pathname.includes("/login") ||
+            request.nextUrl.pathname.includes("/signup")) &&
+          !auth?.user.hasAccess
         ) {
           return Response.redirect(new URL("/payment", request.nextUrl).href);
         }
