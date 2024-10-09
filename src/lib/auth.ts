@@ -16,7 +16,6 @@ const config = {
     Credentials({
       async authorize(credentials) {
         // This function runs when a user tries to log in
-
         // Check if the FormDataObject is valid
         const validatedFormData = authSchema.safeParse(credentials);
         if (!validatedFormData.success) {
@@ -47,7 +46,6 @@ const config = {
       },
     }),
   ],
-  // Add callbacks here such as redirecting to a specific page after sign in
   callbacks: {
     authorized: ({ auth, request }) => {
       const isLoggedIn = Boolean(auth?.user);
@@ -56,15 +54,25 @@ const config = {
       if (!isLoggedIn && isTryingToAccessApp) {
         return false;
       }
-      // If the user is logged in and is trying to access the app, allow access
-      if (isLoggedIn && isTryingToAccessApp) {
+      // If the user is logged in and is trying to access the app, but not paid, deny access
+      if (isLoggedIn && isTryingToAccessApp && !auth?.user.hasAccess) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
+      }
+      // If the user is logged in and is trying to access the app, allow access && auth?.user.hasAccess
+      if (isLoggedIn && isTryingToAccessApp && auth?.user.hasAccess) {
         return true;
       }
+
       // If the user is not logged in and is not trying to access the app, allow access
       if (isLoggedIn && !isTryingToAccessApp) {
-        return Response.redirect(
-          new URL("/app/dashboard", request.nextUrl).href
-        );
+        if (
+          (request.nextUrl.pathname.includes("/login") ||
+            request.nextUrl.pathname.includes("/signup")) &&
+          !auth?.user.hasAccess
+        ) {
+          return Response.redirect(new URL("/payment", request.nextUrl).href);
+        }
+        return true;
       }
 
       if (!isLoggedIn && !isTryingToAccessApp) {
@@ -78,6 +86,7 @@ const config = {
       if (user) {
         // on sign in
         token.userId = user.id;
+        token.hasAccess = user.hasAccess;
       }
       return token;
     },
@@ -85,6 +94,7 @@ const config = {
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.userId;
+        session.user.hasAccess = token.hasAccess;
       }
       return session;
     },
