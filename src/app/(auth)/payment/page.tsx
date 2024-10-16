@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useTransition } from "react";
+import { useSession } from "next-auth/react";
+import React, { useEffect, useTransition } from "react";
 
 import { createCheckoutSession } from "@/actions/actions";
 import H1 from "@/components/h1";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function Page({
   searchParams,
@@ -12,6 +14,9 @@ export default function Page({
   searchParams: { [key: string]: string };
 }) {
   const [isPending, startTransition] = useTransition();
+  const { update } = useSession();
+  const router = useRouter();
+
   return (
     <main className="flex flex-col gap-10 items-center">
       <H1>Petsoft access requires payment</H1>
@@ -21,6 +26,18 @@ export default function Page({
           below.
         </p>
       )}
+
+      {searchParams.success && (
+        <Button
+          onClick={async () => {
+            await update(true);
+            router.push("/app/dashboard");
+          }}
+        >
+          Access Petsoft
+        </Button>
+      )}
+
       {!searchParams.success && (
         <Button
           disabled={isPending}
